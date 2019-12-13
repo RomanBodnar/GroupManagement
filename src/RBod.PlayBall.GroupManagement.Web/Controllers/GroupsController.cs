@@ -21,11 +21,9 @@ namespace RBod.PlayBall.GroupManagement.Web.Controllers
         {
             this.groupService = groupService;
             
-            
-            
             this.config = config;
         }
-
+        
         [HttpGet]
         [Route("")]
         public IActionResult Index()
