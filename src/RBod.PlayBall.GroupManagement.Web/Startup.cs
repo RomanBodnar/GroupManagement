@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using RBod.PlayBall.GroupManagement.Web.Demo;
 
 namespace RBod.PlayBall.GroupManagement.Web
 {
@@ -18,6 +19,7 @@ namespace RBod.PlayBall.GroupManagement.Web
         {
             services.AddControllersWithViews();
             services.AddRazorPages();
+            services.AddSingleton<IGroupIdGenerator, GroupIdGenerator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -28,7 +30,19 @@ namespace RBod.PlayBall.GroupManagement.Web
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseStaticFiles();
             app.UseRouting();
+            app.Use(async (context, next) =>
+            {
+                context.Response.OnStarting(() =>
+                {
+                    context.Response.Headers.Add("X-Powered-By", "Roman Bodnar");
+                    return Task.CompletedTask;
+                });
+               
+                await next.Invoke();
+            });
+
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
     }

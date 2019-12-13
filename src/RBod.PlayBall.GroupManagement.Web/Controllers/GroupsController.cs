@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using RBod.PlayBall.GroupManagement.Web.Demo;
 using RBod.PlayBall.GroupManagement.Web.Models;
 
 namespace RBod.PlayBall.GroupManagement.Web.Controllers
@@ -10,13 +11,16 @@ namespace RBod.PlayBall.GroupManagement.Web.Controllers
     [Route("groups")]
     public class GroupsController : Controller
     {
-        private static long currentGroupId = 3;
+        private IGroupIdGenerator idGenerator;
         private static List<GroupViewModel> groups = new List<GroupViewModel>
         {
             new GroupViewModel { Id = 1, Name = "First"},
-            new GroupViewModel { Id = 2, Name = "Second"},
-            new GroupViewModel { Id = 3, Name = "Third"},
         };
+
+        public GroupsController(IGroupIdGenerator idGenerator)
+        {
+            this.idGenerator = idGenerator;
+        }
 
         [HttpGet]
         [Route("")]
@@ -65,7 +69,7 @@ namespace RBod.PlayBall.GroupManagement.Web.Controllers
         [ActionName("CreatePost")]
         public IActionResult Create(GroupViewModel model)
         {
-            model.Id = ++currentGroupId;
+            model.Id = this.idGenerator.Next();
             groups.Add(model);
             return RedirectToAction(nameof(this.Index));
         }
