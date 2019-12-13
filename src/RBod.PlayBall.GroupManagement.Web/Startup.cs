@@ -7,16 +7,24 @@ using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RBod.PlayBall.GroupManagement.Business.Impl.Services;
 using RBod.PlayBall.GroupManagement.Business.Services;
+using RBod.PlayBall.GroupManagement.Web.Demo;
 using RBod.PlayBall.GroupManagement.Web.IoC;
 
 namespace RBod.PlayBall.GroupManagement.Web
 {
     public class Startup
     {
+        private readonly IConfiguration config;
+
+        public Startup(IConfiguration config)
+        {
+            this.config = config;
+        }
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
@@ -25,7 +33,12 @@ namespace RBod.PlayBall.GroupManagement.Web
             services.AddRazorPages();
             // default DI container:
             // services.AddBusiness();
+            
+            // IOptions
+            //services.Configure<SomeRootConfiguration>(this.config.GetSection("SomeRoot"));
 
+            services.ConfigurePOCO<SomeRootConfiguration>(this.config.GetSection("SomeRoot"));
+            services.ConfigurePOCO<DemoSecretsConfiguration>(this.config.GetSection("DemoSecrets"));
             services.AddOptions();
         }
 
