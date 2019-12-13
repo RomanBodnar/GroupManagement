@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="5.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.0-preview1.19506.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.0-preview1.19506.2">
       <PrivateAssets>all</PrivateAssets>
@@ -16,6 +17,11 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RBod.PlayBall.GroupManagement.Business.Impl\RBod.PlayBall.GroupManagement.Business.Impl.csproj" />
+    <ProjectReference Include="..\RBod.PlayBall.GroupManagement.Business\RBod.PlayBall.GroupManagement.Business.csproj" />
   </ItemGroup>
 
 </Project>

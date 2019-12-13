@@ -2,12 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using RBod.PlayBall.GroupManagement.Web.Demo;
+using RBod.PlayBall.GroupManagement.Business.Impl.Services;
+using RBod.PlayBall.GroupManagement.Business.Services;
+using RBod.PlayBall.GroupManagement.Web.IoC;
 
 namespace RBod.PlayBall.GroupManagement.Web
 {
@@ -19,7 +23,10 @@ namespace RBod.PlayBall.GroupManagement.Web
         {
             services.AddControllersWithViews();
             services.AddRazorPages();
-            services.AddSingleton<IGroupIdGenerator, GroupIdGenerator>();
+            // default DI container:
+            // services.AddBusiness();
+
+            services.AddOptions();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,6 +51,11 @@ namespace RBod.PlayBall.GroupManagement.Web
             });
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+        }
+
+        public void ConfigureContainer(ContainerBuilder builder)
+        {
+            builder.RegisterModule(new AutofacModule());
         }
     }
 }

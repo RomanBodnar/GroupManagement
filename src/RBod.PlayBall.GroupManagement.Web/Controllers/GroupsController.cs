@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using RBod.PlayBall.GroupManagement.Web.Demo;
+using RBod.PlayBall.GroupManagement.Business.Services;
+using RBod.PlayBall.GroupManagement.Web.Mappings;
 using RBod.PlayBall.GroupManagement.Web.Models;
 
 namespace RBod.PlayBall.GroupManagement.Web.Controllers
@@ -11,35 +12,31 @@ namespace RBod.PlayBall.GroupManagement.Web.Controllers
     [Route("groups")]
     public class GroupsController : Controller
     {
-        private IGroupIdGenerator idGenerator;
-        private static List<GroupViewModel> groups = new List<GroupViewModel>
-        {
-            new GroupViewModel { Id = 1, Name = "First"},
-        };
+        private readonly IGroupsService groupService;
 
-        public GroupsController(IGroupIdGenerator idGenerator)
+        public GroupsController( IGroupsService groupService)
         {
-            this.idGenerator = idGenerator;
+            this.groupService = groupService;
         }
 
         [HttpGet]
         [Route("")]
         public IActionResult Index()
         {
-            return View(groups);
+            return View(this.groupService.Get().ToViewModels());
         }
 
         [HttpGet]
         [Route("{id}")]
         public IActionResult Details(long id)
         {
-            var group = groups.SingleOrDefault(g => g.Id == id);
+            var group = this.groupService.GetById(id);
             if (group == null)
             {
                 return NotFound();
             }
 
-            return View(group);
+            return View(group.ToViewModel());
         }
 
         [HttpPost]
@@ -47,14 +44,12 @@ namespace RBod.PlayBall.GroupManagement.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(long id, GroupViewModel model)
         {
-            var group = groups.SingleOrDefault(g => g.Id == id);
+            var group = this.groupService.Update(model.ToServiceModel());
             if (group == null)
             {
                 return NotFound();
             }
-
-            group.Name = model.Name;
-
+            
             return RedirectToAction(nameof(this.Index));
         }
 
@@ -69,8 +64,7 @@ namespace RBod.PlayBall.GroupManagement.Web.Controllers
         [ActionName("CreatePost")]
         public IActionResult Create(GroupViewModel model)
         {
-            model.Id = this.idGenerator.Next();
-            groups.Add(model);
+            this.groupService.Add(model.ToServiceModel());
             return RedirectToAction(nameof(this.Index));
         }
     }
