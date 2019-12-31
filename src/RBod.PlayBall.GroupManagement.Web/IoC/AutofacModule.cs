@@ -38,7 +38,7 @@ namespace RBod.PlayBall.GroupManagement.Web.IoC
 
             public Group GetById(long id)
             {
-                this.logger.LogTrace("Hello from inner {decoratedMethod}", nameof(GetById));
+                this.logger.LogWarning("Hello from inner {decoratedMethod}", nameof(GetById));
                 return this.inner.GetById(id);
             }
 
