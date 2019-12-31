@@ -1,18 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using RBod.PlayBall.GroupManagement.Business.Impl.Services;
-using RBod.PlayBall.GroupManagement.Business.Services;
-using RBod.PlayBall.GroupManagement.Web.Demo;
+using RBod.PlayBall.GroupManagement.Web.Demo.Middleware;
 using RBod.PlayBall.GroupManagement.Web.IoC;
 
 namespace RBod.PlayBall.GroupManagement.Web
@@ -32,14 +25,11 @@ namespace RBod.PlayBall.GroupManagement.Web
             services.AddControllersWithViews();
             services.AddRazorPages();
             // default DI container:
-            // services.AddBusiness();
-            
-            // IOptions
-            //services.Configure<SomeRootConfiguration>(this.config.GetSection("SomeRoot"));
+            services.AddTransient<RequestTimingFactoryMiddleware>();
 
-            services.ConfigurePOCO<SomeRootConfiguration>(this.config.GetSection("SomeRoot"));
-            services.ConfigurePOCO<DemoSecretsConfiguration>(this.config.GetSection("DemoSecrets"));
+            services.AddBusiness();
             services.AddOptions();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -52,6 +42,21 @@ namespace RBod.PlayBall.GroupManagement.Web
 
             app.UseStaticFiles();
             app.UseRouting();
+            app.UseMiddleware(typeof(RequestTimingAdHocMiddleware));
+            app.UseMiddleware<RequestTimingFactoryMiddleware>();
+
+            app.Map("/ping", builder =>
+            {
+                builder.UseMiddleware<RequestTimingFactoryMiddleware>();
+                builder.Run(async (context) => { await context.Response.WriteAsync("pong from path"); });
+            });
+
+            app.MapWhen(context => context.Request.Headers.ContainsKey("ping"), builder =>
+            {
+                builder.UseMiddleware<RequestTimingFactoryMiddleware>();
+                builder.Run(async (context) => { await context.Response.WriteAsync("pong from header"); });
+            });
+
             app.Use(async (context, next) =>
             {
                 context.Response.OnStarting(() =>
@@ -64,11 +69,8 @@ namespace RBod.PlayBall.GroupManagement.Web
             });
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-        }
 
-        public void ConfigureContainer(ContainerBuilder builder)
-        {
-            builder.RegisterModule(new AutofacModule());
+            app.Run(async (context) => { await context.Response.WriteAsync("No middleware can handle a request"); });
         }
     }
 }

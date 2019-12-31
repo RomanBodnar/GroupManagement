@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using RBod.PlayBall.GroupManagement.Business.Services;
-using RBod.PlayBall.GroupManagement.Web.Demo;
 using RBod.PlayBall.GroupManagement.Web.Mappings;
 using RBod.PlayBall.GroupManagement.Web.Models;
 
@@ -15,13 +14,10 @@ namespace RBod.PlayBall.GroupManagement.Web.Controllers
     public class GroupsController : Controller
     {
         private readonly IGroupsService groupService;
-        private readonly SomeRootConfiguration config;
 
-        public GroupsController( IGroupsService groupService, SomeRootConfiguration config, DemoSecretsConfiguration demo)
+        public GroupsController( IGroupsService groupService)
         {
             this.groupService = groupService;
-            
-            this.config = config;
         }
         
         [HttpGet]
